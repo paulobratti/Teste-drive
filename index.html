@@ -78,8 +78,10 @@
         }
 
         // ponto
-        if (pipe.x + pipeWidth === bird.x) {
-          score++;
+        if (!pipe.passed && pipe.x + pipeWidth < bird.x) {
+  score++;
+  pipe.passed = true;
+}
         }
 
         // remover cano fora da tela
