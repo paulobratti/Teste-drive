@@ -115,32 +115,7 @@
       if (!gameOver) {
         requestAnimationFrame(loop);
       }
-      document.addEventListener('keydown', () => {
-  if (gameOver) {
-    resetGame();
-  } else {
-    bird.velocity = bird.lift;
-  }
-
-        document.addEventListener('keydown', () => {
-  if (gameOver) {
-    resetGame();
-  } else {
-    bird.velocity = bird.lift;
-  }
-});
-
-function resetGame() {
-  bird.y = 150;
-  bird.velocity = 0;
-  pipes.length = 0;
-  score = 0;
-  frame = 0;
-  gameOver = false;
-  loop();
-}
-
-
+  
     }
 
     document.addEventListener('keydown', () => {
