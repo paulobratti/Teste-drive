@@ -2,15 +2,17 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <title>Jogo de Carro Avançado</title>
+  <title>Jogo de Carro com Estrada</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { background: #111; overflow: hidden; font-family: sans-serif; }
+    body { background: #000; overflow: hidden; font-family: sans-serif; }
     #game {
       width: 400px;
       height: 600px;
       margin: 20px auto;
-      background: #444;
+      background: url('https://i.imgur.com/NM3VYHR.jpg'); /* Estrada real */
+      background-size: cover;
+      background-repeat: no-repeat;
       position: relative;
       border: 3px solid #fff;
       overflow: hidden;
@@ -21,8 +23,7 @@
       position: absolute;
       bottom: 20px;
       left: 175px;
-      background-image: url('<img src="https://cdn.pixabay.com/photo/2017/01/06/19/15/auto-1957037_1280.jpg" alt="Carro esportivo" width="600">
-');
+      background-image: url('https://i.imgur.com/OdL0XPt.png');
       background-size: cover;
     }
     .enemy {
@@ -40,7 +41,7 @@
       position: absolute;
       left: 195px;
       top: 0;
-      opacity: 0.8;
+      opacity: 0.5;
     }
     #hud {
       position: absolute;
@@ -95,6 +96,8 @@
       <p id="finalScore"></p>
       <button onclick="restartGame()">Reiniciar</button>
     </div>
+    <!-- Música de fundo -->
+    <audio id="bgm" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" loop></audio>
   </div>
 
   <script>
@@ -106,26 +109,19 @@
     const startScreen = document.getElementById('startScreen');
     const gameOverScreen = document.getElementById('gameOverScreen');
     const finalScoreDisplay = document.getElementById('finalScore');
+    const bgm = document.getElementById('bgm');
 
-    let enemies = [];
-    let lines = [];
-    let score = 0;
-    let highScore = localStorage.getItem('highScore') || 0;
-    let speed = 5;
-    let lives = 3;
-    let gameRunning = false;
+    let enemies = [], lines = [];
+    let score = 0, highScore = localStorage.getItem('highScore') || 0;
+    let speed = 5, lives = 3, gameRunning = false;
 
     highScoreDisplay.textContent = "Recorde: " + highScore;
 
     document.addEventListener('keydown', (e) => {
       if (!gameRunning) return;
       const left = parseInt(window.getComputedStyle(player).getPropertyValue("left"));
-      if (e.key === "ArrowLeft" && left > 0) {
-        player.style.left = left - 10 + "px";
-      }
-      if (e.key === "ArrowRight" && left < 350) {
-        player.style.left = left + 10 + "px";
-      }
+      if (e.key === "ArrowLeft" && left > 0) player.style.left = left - 10 + "px";
+      if (e.key === "ArrowRight" && left < 350) player.style.left = left + 10 + "px";
     });
 
     function createEnemy() {
@@ -182,12 +178,7 @@
     function checkCollision(a, b) {
       const aRect = a.getBoundingClientRect();
       const bRect = b.getBoundingClientRect();
-      return !(
-        aRect.bottom < bRect.top ||
-        aRect.top > bRect.bottom ||
-        aRect.right < bRect.left ||
-        aRect.left > bRect.right
-      );
+      return !(aRect.bottom < bRect.top || aRect.top > bRect.bottom || aRect.right < bRect.left || aRect.left > bRect.right);
     }
 
     function updateScore() {
@@ -206,22 +197,18 @@
     function startGame() {
       startScreen.style.display = "none";
       gameOverScreen.style.display = "none";
-      score = 0;
-      lives = 3;
-      speed = 5;
-      updateScore();
-      updateLives();
+      score = 0; lives = 3; speed = 5;
+      updateScore(); updateLives();
       player.style.left = "175px";
       enemies.forEach(e => game.removeChild(e));
       enemies = [];
+      if (lines.length === 0) initLines();
       gameRunning = true;
-      initLines();
+      bgm.play();
 
-      // Loop principal
       window.gameInterval = setInterval(() => {
         if (!gameRunning) return;
-        moveLines();
-        moveEnemies();
+        moveLines(); moveEnemies();
       }, 20);
 
       window.spawnInterval = setInterval(() => {
@@ -235,6 +222,8 @@
       clearInterval(window.gameInterval);
       clearInterval(window.spawnInterval);
       finalScoreDisplay.textContent = "Pontuação final: " + score;
+      bgm.pause();
+      bgm.currentTime = 0;
       gameOverScreen.style.display = "flex";
     }
 
