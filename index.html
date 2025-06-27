@@ -2,10 +2,10 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <title>Jogo de Carro com Imagens</title>
+  <title>Jogo de Carro</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { background: #111; overflow: hidden; }
+    body { background: #222; overflow: hidden; }
     #game {
       width: 400px;
       height: 600px;
@@ -13,24 +13,23 @@
       background: #444;
       position: relative;
       border: 2px solid #fff;
-      overflow: hidden;
     }
     #player {
       width: 50px;
       height: 100px;
+      background: red;
       position: absolute;
       bottom: 20px;
       left: 175px;
-      background-image: url('https://i.imgur.com/OdL0XPt.png');
-      background-size: cover;
+      border-radius: 10px;
     }
     .enemy {
       width: 50px;
       height: 100px;
+      background: yellow;
       position: absolute;
       top: -120px;
-      background-image: url('https://i.imgur.com/T5qkYKs.png');
-      background-size: cover;
+      border-radius: 10px;
     }
   </style>
 </head>
@@ -46,6 +45,7 @@
     const playerSpeed = 10;
     let enemies = [];
 
+    // Movimento do jogador
     document.addEventListener('keydown', (e) => {
       const left = parseInt(window.getComputedStyle(player).getPropertyValue("left"));
       if (e.key === "ArrowLeft" && left > 0) {
@@ -56,6 +56,7 @@
       }
     });
 
+    // Criar carros inimigos
     function createEnemy() {
       const enemy = document.createElement('div');
       enemy.classList.add('enemy');
@@ -66,16 +67,19 @@
       enemies.push(enemy);
     }
 
+    // Atualizar posição dos inimigos
     function moveEnemies() {
       enemies.forEach((enemy, index) => {
         const top = parseInt(enemy.style.top);
         enemy.style.top = top + 5 + "px";
 
+        // Remover inimigos que saíram da tela
         if (top > 600) {
           game.removeChild(enemy);
           enemies.splice(index, 1);
         }
 
+        // Verificar colisão
         if (checkCollision(enemy, player)) {
           alert("💥 Game Over!");
           location.reload();
@@ -94,10 +98,12 @@
       );
     }
 
+    // Loop do jogo
     setInterval(() => {
       moveEnemies();
     }, 20);
 
+    // Criar novos inimigos a cada 1s
     setInterval(() => {
       createEnemy();
     }, 1000);
