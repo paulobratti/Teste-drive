@@ -2,126 +2,94 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mini Flappy Bird</title>
+  <title>Jogo de Carro</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    canvas {
-      background: skyblue;
-      display: block;
-      margin: 0 auto;
+    body { background: #222; overflow: hidden; }
+    #game {
+      width: 400px;
+      height: 600px;
+      margin: 20px auto;
+      background: #444;
+      position: relative;
+      border: 2px solid #fff;
+    }
+    #player {
+      width: 50px;
+      height: 100px;
+      background: red;
+      position: absolute;
+      bottom: 20px;
+      left: 175px;
+      border-radius: 10px;
+    }
+    .enemy {
+      width: 50px;
+      height: 100px;
+      background: yellow;
+      position: absolute;
+      top: -120px;
+      border-radius: 10px;
     }
   </style>
 </head>
 <body>
-  <canvas id="gameCanvas" width="320" height="480"></canvas>
+  <div id="game">
+    <div id="player"></div>
+  </div>
 
   <script>
-    const canvas = document.getElementById('gameCanvas');
-    const ctx = canvas.getContext('2d');
+    const game = document.getElementById('game');
+    const player = document.getElementById('player');
+    const gameWidth = 400;
+    const playerSpeed = 10;
+    let enemies = [];
 
-    const bird = {
-      x: 150,
-      y: 150,
-      width: 20,
-      height: 20,
-      gravity: 0.5,
-      lift: -10,
-      velocity: 0
-    };
-
-    const pipes = [];
-    const pipeWidth = 40;
-    const gap = 100;
-    let frame = 0;
-    let score = 0;
-    let gameOver = false;
-
-    function drawBird() {
-      ctx.fillStyle = 'yellow';
-      ctx.fillRect(bird.x, bird.y, bird.width, bird.height);
-    }
-
-    function drawPipe(pipe) {
-      ctx.fillStyle = 'green';
-      ctx.fillRect(pipe.x, 0, pipeWidth, pipe.top);
-      ctx.fillRect(pipe.x, pipe.bottom, pipeWidth, canvas.height - pipe.bottom);
-    }
-
-    function drawScore() {
-      ctx.fillStyle = 'black';
-      ctx.font = '20px Arial';
-      ctx.fillText('Score: ' + score, 10, 25);
-    }
-
-    function update() {
-      if (gameOver) return;
-
-      bird.velocity += bird.gravity;
-      bird.y += bird.velocity;
-
-      if (frame % 90 === 0) {
-        const top = Math.random() * (canvas.height - gap - 50);
-        const bottom = top + gap;
-        pipes.push({ x: canvas.width, top: top, bottom: bottom });
+    // Movimento do jogador
+    document.addEventListener('keydown', (e) => {
+      const left = parseInt(window.getComputedStyle(player).getPropertyValue("left"));
+      if (e.key === "ArrowLeft" && left > 0) {
+        player.style.left = left - playerSpeed + "px";
       }
-
-      pipes.forEach((pipe, index) => {
-        pipe.x -= 2;
-
-        // colisão
-        if (
-          bird.x < pipe.x + pipeWidth &&
-          bird.x + bird.width > pipe.x &&
-          (bird.y < pipe.top || bird.y + bird.height > pipe.bottom)
-        ) {
-          gameOver = true;
-        }
-
-        // ponto
-        if (pipe.x + pipeWidth === bird.x) {
-          score++;
-        }
-
-        // remover cano fora da tela
-        if (pipe.x + pipeWidth < 0) {
-          pipes.splice(index, 1);
-        }
-      });
-
-      // chão ou teto
-      if (bird.y + bird.height > canvas.height || bird.y < 0) {
-        gameOver = true;
+      if (e.key === "ArrowRight" && left < gameWidth - 50) {
+        player.style.left = left + playerSpeed + "px";
       }
-    }
-
-    function draw() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      drawBird();
-      pipes.forEach(drawPipe);
-      drawScore();
-
-      if (gameOver) {
-        ctx.fillStyle = 'red';
-        ctx.font = '30px Arial';
-        ctx.fillText('Game Over', 90, canvas.height / 2);
-      }
-    }
-
-    function loop() {
-      update();
-      draw();
-      frame++;
-      if (!gameOver) {
-        requestAnimationFrame(loop);
-      }
-    }
-
-    document.addEventListener('keydown', () => {
-      bird.velocity = bird.lift;
     });
 
-    loop();
-  </script>
-</body>
-</html>
+    // Criar carros inimigos
+    function createEnemy() {
+      const enemy = document.createElement('div');
+      enemy.classList.add('enemy');
+      const enemyLeft = Math.floor(Math.random() * (gameWidth - 50));
+      enemy.style.left = enemyLeft + "px";
+      enemy.style.top = "0px";
+      game.appendChild(enemy);
+      enemies.push(enemy);
+    }
+
+    // Atualizar posição dos inimigos
+    function moveEnemies() {
+      enemies.forEach((enemy, index) => {
+        const top = parseInt(enemy.style.top);
+        enemy.style.top = top + 5 + "px";
+
+        // Remover inimigos que saíram da tela
+        if (top > 600) {
+          game.removeChild(enemy);
+          enemies.splice(index, 1);
+        }
+
+        // Verificar colisão
+        if (checkCollision(enemy, player)) {
+          alert("💥 Game Over!");
+          location.reload();
+        }
+      });
+    }
+
+    function checkCollision(a, b) {
+      const aRect = a.getBoundingClientRect();
+      const bRect = b.getBoundingClientRect();
+      return !(
+        aRect.bottom < bRect.top ||
+        aRect.top > bR
