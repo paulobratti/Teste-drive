@@ -2,48 +2,76 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <title>Jogo de Carro</title>
+  <title>Jogo de Carro com Imagens e Pista</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { background: #222; overflow: hidden; }
+    body { background: #111; overflow: hidden; font-family: sans-serif; }
     #game {
       width: 400px;
       height: 600px;
       margin: 20px auto;
-      background: #444;
+      background: #2e2e2e;
       position: relative;
-      border: 2px solid #fff;
+      border: 3px solid #fff;
+      overflow: hidden;
     }
+
     #player {
       width: 50px;
       height: 100px;
-      background: red;
       position: absolute;
       bottom: 20px;
       left: 175px;
-      border-radius: 10px;
+      background-image: url('https://i.imgur.com/OdL0XPt.png');
+      background-size: cover;
     }
+
     .enemy {
       width: 50px;
       height: 100px;
-      background: yellow;
       position: absolute;
       top: -120px;
-      border-radius: 10px;
+      background-image: url('https://i.imgur.com/T5qkYKs.png');
+      background-size: cover;
+    }
+
+    .line {
+      width: 10px;
+      height: 80px;
+      background: white;
+      position: absolute;
+      left: 195px;
+      top: 0;
+      opacity: 0.8;
+    }
+
+    #score {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      color: #fff;
+      font-size: 20px;
+      z-index: 10;
     }
   </style>
 </head>
 <body>
   <div id="game">
+    <div id="score">Score: 0</div>
     <div id="player"></div>
   </div>
 
   <script>
     const game = document.getElementById('game');
     const player = document.getElementById('player');
+    const scoreDisplay = document.getElementById('score');
+
     const gameWidth = 400;
     const playerSpeed = 10;
     let enemies = [];
+    let lines = [];
+    let score = 0;
+    let speed = 5;
 
     // Movimento do jogador
     document.addEventListener('keydown', (e) => {
@@ -67,22 +95,46 @@
       enemies.push(enemy);
     }
 
-    // Atualizar posição dos inimigos
+    // Criar linhas da pista
+    function createLine(y) {
+      const line = document.createElement('div');
+      line.classList.add('line');
+      line.style.top = y + "px";
+      game.appendChild(line);
+      lines.push(line);
+    }
+
+    // Inicializar linhas
+    for (let i = 0; i < 6; i++) {
+      createLine(i * 100);
+    }
+
+    // Movimentar linhas da pista
+    function moveLines() {
+      lines.forEach((line) => {
+        let top = parseInt(line.style.top);
+        if (top >= 600) top = -80;
+        line.style.top = top + speed + "px";
+      });
+    }
+
+    // Movimentar inimigos
     function moveEnemies() {
       enemies.forEach((enemy, index) => {
         const top = parseInt(enemy.style.top);
-        enemy.style.top = top + 5 + "px";
+        enemy.style.top = top + speed + "px";
 
-        // Remover inimigos que saíram da tela
         if (top > 600) {
           game.removeChild(enemy);
           enemies.splice(index, 1);
+          score++;
+          scoreDisplay.textContent = "Score: " + score;
+          // Aumentar dificuldade a cada 5 pontos
+          if (score % 5 === 0) speed += 1;
         }
 
-        // Verificar colisão
         if (checkCollision(enemy, player)) {
-          alert("💥 Game Over!");
-          location.reload();
+          gameOver();
         }
       });
     }
@@ -98,15 +150,27 @@
       );
     }
 
-    // Loop do jogo
+    function gameOver() {
+      alert("💥 Game Over!\nSua pontuação: " + score);
+      location.reload();
+    }
+
     setInterval(() => {
       moveEnemies();
+      moveLines();
     }, 20);
 
-    // Criar novos inimigos a cada 1s
     setInterval(() => {
       createEnemy();
     }, 1000);
+
+    // Som (opcional) — para usar localmente
+    // const crashSound = new Audio('crash.mp3');
+    // function gameOver() {
+    //   crashSound.play();
+    //   setTimeout(() => alert("Game Over!"), 200);
+    //   location.reload();
+    // }
   </script>
 </body>
 </html>
