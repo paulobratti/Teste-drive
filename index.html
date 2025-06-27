@@ -92,4 +92,21 @@
       const bRect = b.getBoundingClientRect();
       return !(
         aRect.bottom < bRect.top ||
-        aRect.top > bR
+        aRect.top > bRect.bottom ||
+        aRect.right < bRect.left ||
+        aRect.left > bRect.right
+      );
+    }
+
+    // Loop do jogo
+    setInterval(() => {
+      moveEnemies();
+    }, 20);
+
+    // Criar novos inimigos a cada 1s
+    setInterval(() => {
+      createEnemy();
+    }, 1000);
+  </script>
+</body>
+</html>
