@@ -94,6 +94,19 @@
       game.appendChild(enemy);
       enemies.push(enemy);
     }
+        }
+      });
+   
+    }
+
+    setInterval(() => {
+      moveEnemies();
+    }, 20);
+
+    setInterval(() => {
+      createEnemy();
+    }, 1000);
+
 
     // Criar linhas da pista
     function createLine(y) {
